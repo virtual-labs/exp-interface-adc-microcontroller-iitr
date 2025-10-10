@@ -1,13 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<!-- Add CSS at the head of HTML file -->
-    <link rel="stylesheet" href="./css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Labs | Microcontroller Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-		<!-- Your code goes here-->
+<body class="bg-gray-50 text-gray-900">
 
-	<!-- Add JS at the bottom of HTML file --> 
-        <script src="./js/main.js"></script>
+  <p class="heading font-serif font-bold text-xl text-center underline mt-6">
+    <a href="#" class="text-2xl">Analog-to-Digital Converter</a>
+  </p>
+
+  <div class="p-6 max-w-[980px] mx-auto text-gray-900 bg-gray-100 rounded-lg shadow-md my-16">
+    <div class="flex justify-end mb-4">
+      <button id="readInstructionsBtn" class="btn-yellow font-medium">
+        Read Instructions
+      </button>
+    </div>
+
+    <!-- Instructions Popup -->
+    <div id="instructionsPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-2xl max-w-lg w-full shadow-xl relative h-[80vh] overflow-auto">
+        <h2 class="text-xl font-bold mb-4">Instructions</h2>
+        <ul class="list-decimal list-inside space-y-2 text-gray-700 text-sm">
+          <li>Click <b>View Circuit Diagram</b> to see how the 8051 and LEDs are connected in logic diagram and in block diagram.</li>
+          <li>Click <b>View Assembly Code</b> to analyse the assembly code used for this experiment.</li>
+          <li>Now according to your analysis write your code in the <b>Assembly Code Editor</b>.</li>
+          <li>Click <b>Check Code</b> to verify your program against the given code.
+            <ul className="list-disc list-inside ml-5">
+              <li>If correct → a success message will appear and <b>Start Simulation</b> will be enabled.</li>
+              <li>If incorrect → you’ll be asked to review and correct your program.</li>
+            </ul>
+          </li>
+          <li>(Optional) You can directly copy code into editor by clicking on <b>Use Code</b> in View Assembly code popup.</li>
+          <li>After validation, move the <b>Analog Input</b> slider and click <b>Convert</b> to convert the analog input to digital output. </li>
+          <li>Observe the equivalent output on the 7 segment displays and. You can move the slider and click on convert if you want to convert for other values.</li>
+          <li>If you want to save your program, click <b>Download Code</b>. It will be stored as <code>adc_code.asm</code>.</li>
+          <li>Click <b>Reset</b> to clear the editor, and reset everything to default.</li>
+        </ul>
+        <div class="mt-4 flex justify-end">
+          <button id="closeInstructions" class="btn-red">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assembly Code Editor -->
+    <div class="mt-5">
+      <h3 class="text-lg font-semibold mb-2">Assembly Code Editor</h3>
+      <textarea id="userCode" rows="16" placeholder="Write your assembly code here..."
+        class="w-full font-mono text-xs rounded-lg p-2 border border-gray-300"></textarea>
+      <div class="text-xs text-gray-600 pt-2 mb-3">
+        Tip: Click "View Assembly Code" then "Use Code" to copy it into the editor.
+      </div>
+      <div class="flex gap-2 mt-2">
+        <button id="viewCircuitBtn" class="btn-blue">View Circuit Diagram</button>
+        <button id="viewSampleBtn" class="btn-blue">View Assembly Code</button>
+        <button id="checkCodeBtn" class="btn-blue">Check Code</button>
+        <button id="downloadBtn" class="btn-disabled">Download Code</button>
+      </div>
+    </div>
+
+    <!-- Circuit Popup -->
+    <div id="circuitPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-2xl max-w-3xl w-full shadow-xl flex flex-col">
+        <h3 class="text-lg">Components used in this experiment: <b>8051 Microcontroller, ADC, DISP1, DISP0.</b></h3>
+        <h3 class="text-lg">Flow of circuit: <b>Analog Input Voltage ⟶ ADC ⟶ 8051 Microcontroller ⟶ DISP1&DISP0.</b></h3>
+        <div class="flex justify-center mt-4">
+          <img id="cktImage" src="images/ckt.png" alt="Circuit Diagram" class="rounded-lg border max-h-[70vh] mx-auto" />
+        </div>
+        <div class="flex justify-center"><p id="cktCaption">Figure : Logic Diagram</p></div>
+        <div class="mt-4 flex justify-between">
+          <button id="toggleDiagramBtn" class="btn-blue">View Block Diagram</button>
+          <button id="closeCircuitBtn" class="btn-red">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample Assembly Popup -->
+    <div id="samplePopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-2xl max-w-2xl w-full h-[80vh] shadow-xl flex flex-col">
+        <h2 class="text-xl font-bold mb-4">ADC Code</h2>
+        <pre id="sampleAsmDisplay"
+          class="flex-1 overflow-auto bg-greyy text-black n-200 text-xs p-4 rounded-lg whitespace-pre-wrap"></pre>
+        <div class="mt-4 flex justify-end gap-2">
+          <button id="useSampleBtn" class="btn-blue">Use Code</button>
+          <button id="closeSampleBtn" class="btn-red">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input and Output Section -->
+    <section class="flex gap-5 items-center mt-5 flex-col lg:flex-row">
+      <div class="flex-none w-[380px] p-4 rounded-xl bg-white shadow-lg border border-black/5">
+        <h3 class="text-lg font-semibold">Analog Input</h3>
+        <label class="block mb-1 font-sans font-bold">
+          Voltage: <strong id="voltageLabel">2.5 V</strong>
+        </label>
+        <input type="range" min="0" max="5" step="0.1" id="voltageSlider" class="w-full">
+        <div class="flex justify-between text-xs text-gray-500 mt-1 font-sans">
+          <span>0V</span><span>1V</span><span>2V</span><span>3V</span><span>4V</span><span>5V</span>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+          <button id="convertBtn" class="btn-disabled">Convert</button>
+          <button id="resetBtn" class="btn-red">Reset</button>
+        </div>
+      </div>
+
+      <div class="flex-1 p-4">
+        <div class="items-center flex justify-center">
+          <h3 class="text-lg font-semibold">Output on 7-Segment Display</h3>
+        </div>
+        <div class="flex gap-7 items-center justify-center">
+          <div id="sevenSegHigh"></div>
+          <div id="sevenSegLow"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="fixed bottom-0 w-full bg-gray-800 text-white text-center font-sans font-bold py-3 text-sm">
+    © Copyright 2025 Virtual Labs, IIT Roorkee
+  </footer>
+
+  <script src="js/script.js"></script>
 </body>
 </html>

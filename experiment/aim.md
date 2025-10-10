@@ -1,1 +1,1 @@
-### Aim of the experiment
+#### To Interface an ADC (Analog-to-Digital Converter) with the 8051 microcontroller and display the digital output on two 7-segment displays.

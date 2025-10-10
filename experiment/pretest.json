@@ -1,39 +1,52 @@
-{
-  "version": 2.0,
-  "questions": [
-    {
-      "question": "This is a Sample Question 1?",
-      "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
-      },
-      "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
-      },
-      "correctAnswer": "a",
-      "difficulty": "beginner"
+[
+  {
+    "question": "What does an ADC do?",
+    "answers": {
+      "a": "Converts digital to analog",
+      "b": "Converts analog to digital",
+      "c": "Amplifies the analog signal",
+      "d": "Filters the digital signal"
     },
-    {
-      "question": "This is a Sample Question 2?",
-      "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
-      },
-      "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
-      },
-      "correctAnswer": "c",
-      "difficulty": "beginner"
-    }
-  ]
-}
+    "correctAnswer": "b"
+  },
+  {
+    "question": "Which of the following is a commonly used 8-bit ADC?",
+    "answers": {
+      "a": "DAC0808",
+      "b": "LM35",
+      "c": "ADC0804",
+      "d": "MAX232"
+    },
+    "correctAnswer": "c"
+  },
+  {
+    "question": "Which pin on ADC0804 starts the conversion process?",
+    "answers": {
+      "a": "INTR",
+      "b": "Vref",
+      "c": "RD",
+      "d": "WR"
+    },
+    "correctAnswer": "d"
+  },
+  {
+    "question": "How many output lines are there in an 8-bit ADC?",
+    "answers": {
+      "a": "4",
+      "b": "8",
+      "c": "10",
+      "d": "16"
+    },
+    "correctAnswer": "b"
+  },
+  {
+    "question": "What is the main role of a 7-segment display in this experiment?",
+    "answers": {
+      "a": "Store the ADC result",
+      "b": "Display the analog voltage",
+      "c": "Show the converted digital output",
+      "d": "Convert digital to analog"
+    },
+    "correctAnswer": "c"
+  }
+]
