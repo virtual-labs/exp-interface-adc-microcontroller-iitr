@@ -1,1 +1,1 @@
-## Experiment name
+## Analog-to-Digital Converter
