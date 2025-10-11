@@ -1,6 +1,5 @@
-## Procedure
 
-<div style="font-family: 'Nunito Sans', sans-serif; font-size: 16px; text-align: justify; margin-top: 2%;">
+
 
 1. Click **View Circuit Diagram** to see how the 8051 and LEDs are connected in the logic diagram and block diagram.
 
@@ -23,4 +22,4 @@
 9. Click **Reset** to clear the editor and reset everything to default.
 
 
-</div>
+
