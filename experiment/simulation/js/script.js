@@ -30,9 +30,11 @@ const closeSampleBtn = document.getElementById("closeSampleBtn");
 const useSampleBtn = document.getElementById("useSampleBtn");
 const sampleAsmDisplay = document.getElementById("sampleAsmDisplay");
 
-// 7-seg placeholders
 const sevenSegHigh = document.getElementById("sevenSegHigh");
 const sevenSegLow = document.getElementById("sevenSegLow");
+
+const downloadBtn = document.getElementById("downloadBtn");
+const checkCodeBtn = document.getElementById("checkCodeBtn");
 
 // ----------------- Sample Assembly Code -----------------
 const sampleAsm = `ORG 0000H
@@ -105,18 +107,18 @@ sampleAsmDisplay.textContent = sampleAsm;
 
 // ----------------- Utility Functions -----------------
 function renderSevenSeg(digit, showDecimal = false) {
-  const hexToSeg = {
-    0: [1,1,1,1,1,1,0], 1: [0,1,1,0,0,0,0],
-    2: [1,1,0,1,1,0,1], 3: [1,1,1,1,0,0,1],
-    4: [0,1,1,0,0,1,1], 5: [1,0,1,1,0,1,1],
-    6: [1,0,1,1,1,1,1], 7: [1,1,1,0,0,0,0],
-    8: [1,1,1,1,1,1,1], 9: [1,1,1,1,0,1,1],
-  };
-  const seg = hexToSeg[digit] || hexToSeg[0];
-  const segStyle = (on) =>
-    `fill:${on ? "#ff3333" : "#222"};stroke:#111;stroke-width:0.8;`;
+    const hexToSeg = {
+        0: [1,1,1,1,1,1,0], 1: [0,1,1,0,0,0,0],
+        2: [1,1,0,1,1,0,1], 3: [1,1,1,1,0,0,1],
+        4: [0,1,1,0,0,1,1], 5: [1,0,1,1,0,1,1],
+        6: [1,0,1,1,1,1,1], 7: [1,1,1,0,0,0,0],
+        8: [1,1,1,1,1,1,1], 9: [1,1,1,1,0,1,1]
+    };
 
-  return `
+    const seg = hexToSeg[digit] || hexToSeg[0];
+    const segStyle = (on) => `fill:${on ? "#ff3333" : "#222"};stroke:#111;stroke-width:0.8;`;
+
+    return `
     <div class="bg-black p-3 rounded-lg shadow-inner relative">
       <svg width="105" height="150" viewBox="0 0 68 100">
         <polygon points="8,5 52,5 47,12 13,12" style="${segStyle(seg[0])}"/>
@@ -133,54 +135,108 @@ function renderSevenSeg(digit, showDecimal = false) {
 
 // ----------------- Event Handlers -----------------
 voltageSlider.addEventListener("input", (e) => {
-  voltage = parseFloat(e.target.value);
-  voltageLabel.textContent = voltage.toFixed(1) + " V";
+    voltage = parseFloat(e.target.value);
+    voltageLabel.textContent = voltage.toFixed(1) + " V";
 });
 
-// Enable Download only when user types something
-userCodeInput.addEventListener("input", () => {
-  if (userCodeInput.value.trim().length > 0) {
-    document.getElementById("downloadBtn").disabled = false;
-    document.getElementById("downloadBtn").classList.remove("btn-disabled");
-    document.getElementById("downloadBtn").classList.add("btn-blue");
-  } else {
-    document.getElementById("downloadBtn").disabled = true;
-    document.getElementById("downloadBtn").classList.remove("btn-blue");
-    document.getElementById("downloadBtn").classList.add("btn-disabled");
-  }
-});
+// Normalize ASM for comparison
+function normalizeAsm(code) {
+    return code
+        .toUpperCase()
+        .split("\n")
+        .map(line => line.trim().replace(/\s+/g, " ").replace(/,\s+/g, ","))
+        .filter(line => line.length > 0)
+        .join("\n");
+}
 
+// ----------------- CHECK CODE (ENABLING BUTTONS HERE) -----------------
+checkCodeBtn.onclick = () => {
+    const normalizedUser = normalizeAsm(userCodeInput.value);
+    const normalizedSample = normalizeAsm(sampleAsm);
 
+    if (normalizedUser === normalizedSample) {
+        alert("Your code is correct! You can proceed to next step.");
+
+        isStartEnabled = true;
+        convertBtn.classList.remove("btn-disabled");
+        convertBtn.classList.add("btn-blue");
+
+        // ENABLE DOWNLOAD BUTTON
+        downloadBtn.disabled = false;
+        downloadBtn.classList.remove("btn-disabled");
+        downloadBtn.classList.add("btn-blue");
+
+    } else {
+        alert("Your code is incorrect! Please check again.");
+
+        isStartEnabled = false;
+        convertBtn.classList.remove("btn-blue");
+        convertBtn.classList.add("btn-disabled");
+
+        // DISABLE DOWNLOAD BUTTON
+        downloadBtn.disabled = true;
+        downloadBtn.classList.remove("btn-blue");
+        downloadBtn.classList.add("btn-disabled");
+    }
+};
+
+// ----------------- Download Code -----------------
+downloadBtn.onclick = () => {
+    const text = userCodeInput.value || sampleAsm;
+    const element = document.createElement("a");
+    const file = new Blob([text], { type: "text/plain" });
+
+    element.href = URL.createObjectURL(file);
+    element.download = "adc_code.asm";
+
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+};
+
+// ----------------- Conversion -----------------
 function startConversion() {
-  if (isConverting || !isStartEnabled) return;
-  isConverting = true;
-  convertBtn.textContent = "Converting...";
-  setTimeout(() => {
-    const intPart = Math.floor(voltage);
-    const decimalPart = Math.round((voltage * 10) % 10);
-    hexHigh = intPart;
-    hexLow = decimalPart;
-    sevenSegHigh.innerHTML = renderSevenSeg(hexHigh, true);
-    sevenSegLow.innerHTML = renderSevenSeg(hexLow, false);
-    isConverting = false;
-    convertBtn.textContent = "Convert";
-  }, 200);
+    if (isConverting || !isStartEnabled) return;
+
+    isConverting = true;
+    convertBtn.textContent = "Converting...";
+
+    setTimeout(() => {
+        const intPart = Math.floor(voltage);
+        const decimalPart = Math.round((voltage * 10) % 10);
+
+        hexHigh = intPart;
+        hexLow = decimalPart;
+
+        sevenSegHigh.innerHTML = renderSevenSeg(hexHigh, true);
+        sevenSegLow.innerHTML = renderSevenSeg(hexLow, false);
+
+        isConverting = false;
+        convertBtn.textContent = "Convert";
+    }, 200);
 }
 
+// ----------------- Reset Simulation -----------------
 function resetSimulation() {
-  isConverting = false;
-  adcValue = 0;
-  hexHigh = 0;
-  hexLow = 0;
-  userCodeInput.value = "";
-  isStartEnabled = false;
-  sevenSegHigh.innerHTML = renderSevenSeg(0, true);
-  sevenSegLow.innerHTML = renderSevenSeg(0, false);
-  convertBtn.className = "btn-disabled";
-  downloadBtn.className = "btn-disabled";
+    isConverting = false;
+    adcValue = 0;
+    hexHigh = 0;
+    hexLow = 0;
+    userCodeInput.value = "";
+    isStartEnabled = false;
+
+    sevenSegHigh.innerHTML = renderSevenSeg(0, true);
+    sevenSegLow.innerHTML = renderSevenSeg(0, false);
+
+    convertBtn.classList.remove("btn-blue");
+    convertBtn.classList.add("btn-disabled");
+
+    downloadBtn.disabled = true;
+    downloadBtn.classList.remove("btn-blue");
+    downloadBtn.classList.add("btn-disabled");
 }
 
-// Popup handlers
+// ----------------- Popup Handlers -----------------
 readInstructionsBtn.onclick = () => instructionsPopup.classList.remove("hidden");
 closeInstructions.onclick = () => instructionsPopup.classList.add("hidden");
 
@@ -188,66 +244,31 @@ viewCircuitBtn.onclick = () => circuitPopup.classList.remove("hidden");
 closeCircuitBtn.onclick = () => circuitPopup.classList.add("hidden");
 
 let showBlockDiagram = false;
+
 toggleDiagramBtn.onclick = () => {
-  showBlockDiagram = !showBlockDiagram;
-  if (showBlockDiagram) {
-    cktImage.src = "images/img3.png";
-    cktCaption.textContent = "Figure : Block Diagram";
-    toggleDiagramBtn.textContent = "View Logic Diagram";
-  } else {
-    cktImage.src = "images/ckt.png";
-    cktCaption.textContent = "Figure : Logic Diagram";
-    toggleDiagramBtn.textContent = "View Block Diagram";
-  }
+    showBlockDiagram = !showBlockDiagram;
+    if (showBlockDiagram) {
+        cktImage.src = "images/img3.png";
+        cktCaption.textContent = "Figure : Block Diagram";
+        toggleDiagramBtn.textContent = "View Logic Diagram";
+    } else {
+        cktImage.src = "images/ckt.png";
+        cktCaption.textContent = "Figure : Logic Diagram";
+        toggleDiagramBtn.textContent = "View Block Diagram";
+    }
 };
 
 viewSampleBtn.onclick = () => samplePopup.classList.remove("hidden");
 closeSampleBtn.onclick = () => samplePopup.classList.add("hidden");
+
 useSampleBtn.onclick = () => {
-  userCodeInput.value = sampleAsm;
-  samplePopup.classList.add("hidden");
-};
-
-// Check Code
-function normalizeAsm(code) {
-  return code
-    .toUpperCase()
-    .split("\n")
-    .map(line =>
-      line.trim().replace(/\s+/g, " ").replace(/,\s+/g, ",")
-    )
-    .filter(line => line.length > 0)
-    .join("\n");
-}
-document.getElementById("checkCodeBtn").onclick = () => {
-  const normalizedUser = normalizeAsm(userCodeInput.value);
-  const normalizedSample = normalizeAsm(sampleAsm);
-  if (normalizedUser === normalizedSample) {
-    alert("Your code is correct! You can proceed to next step.");
-    isStartEnabled = true;
-    convertBtn.className = "btn-blue";
-  } else {
-    alert("Your code is incorrect! Please check again.");
-    isStartEnabled = false;
-    convertBtn.className = "btn-disabled";
-  }
-};
-
-// Download
-document.getElementById("downloadBtn").onclick = () => {
-  const text = userCodeInput.value || sampleAsm;
-  const element = document.createElement("a");
-  const file = new Blob([text], { type: "text/plain" });
-  element.href = URL.createObjectURL(file);
-  element.download = "adc_code.asm";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
+    userCodeInput.value = sampleAsm;
+    samplePopup.classList.add("hidden");
 };
 
 // Convert + Reset
 convertBtn.onclick = startConversion;
 resetBtn.onclick = resetSimulation;
 
-// Init 7-seg display
+// Init display
 resetSimulation();
