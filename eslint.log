@@ -1,0 +1,6 @@
+
+/home/runner/work/exp-interface-adc-microcontroller-iitr/exp-interface-adc-microcontroller-iitr/experiment/simulation/js/script.js
+  3:5  warning  'adcValue' is assigned a value but never used  no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+

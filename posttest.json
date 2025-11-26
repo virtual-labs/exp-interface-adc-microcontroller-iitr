@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the digital range of an 8-bit ADC?",
+    "answers": {
+      "a": "0–255",
+      "b": "0–1023",
+      "c": "0–127",
+      "d": "0–511"
+    },
+    "correctAnswer": "a"
+  },
+  {
+    "question": "What kind of signal is provided at the input of an ADC?",
+    "answers": {
+      "a": "Digital",
+      "b": "Analog",
+      "c": "PWM",
+      "d": "Tri-state"
+    },
+    "correctAnswer": "b"
+  },
+  {
+    "question": "What is the purpose of the INTR pin in ADC0804?",
+    "answers": {
+      "a": "Initiates conversion",
+      "b": "Outputs the analog signal",
+      "c": "Indicates conversion is complete",
+      "d": "Supplies clock signal"
+    },
+    "correctAnswer": "c"
+  },
+  {
+    "question": "Why do we use two 7-segment displays in this experiment?",
+    "answers": {
+      "a": "To show binary output",
+      "b": "To display high and low bits separately",
+      "c": "To show 2-digit decimal output",
+      "d": "To convert ADC to DAC"
+    },
+    "correctAnswer": "c"
+  },
+  {
+    "question": "Which microcontroller is used in this experiment?",
+    "answers": {
+      "a": "ATmega328",
+      "b": "PIC18F4550",
+      "c": "8051",
+      "d": "ARM Cortex-M4"
+    },
+    "correctAnswer": "c"
+  }
+]
